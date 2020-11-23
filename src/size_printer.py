@@ -262,19 +262,19 @@ def set_current_working_dir():
     os.chdir(dname)
 
 
-def which(path: str):
+def which(arg: str):
     """Return fullpath of arg, or None if file not exist"""
     import os
     try:
-        fpath = os.path.split(path)
-        if fpath:
-            if os.path.isfile(path):
-                return path
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                f = os.path.join(path, path)
-                if os.path.isfile(f):
-                    return f
+        fpath = os.path.split(arg)
+        if not fpath:
+            return None
+        if os.path.isfile(arg):
+            return arg
+        for path in os.environ["PATH"].split(os.pathsep):
+            f = os.path.join(path, arg)
+            if os.path.isfile(f):
+                return f
     except Exception:
         pass
     return None
