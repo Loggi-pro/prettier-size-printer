@@ -67,7 +67,8 @@ def run(args: Arguments) -> SizeStruct:
     ha.size_path, ha.elf_path, ha.mcu, ha.maxflash, ha.maxram = size_path, elf_path, args.mcu, args.maxflash, args.maxram
     size_result: SizeStruct = handler_selector[mcu](ha)
     parseResult: EzStackStruct = handle_ezstack(which(args.ezstack), elf_path)
-    size_result.data_size, size_result.data_percent, size_result.ezstack_used = parseResult.data_size, parseResult.data_percent, parseResult.ezstack_used
+    if parseResult.ezstack_used:
+        size_result.data_size, size_result.data_percent, size_result.ezstack_used = parseResult.data_size, parseResult.data_percent, parseResult.ezstack_used
     return size_result
 
 
@@ -142,9 +143,9 @@ def parse_stm32_output(mcu, output, maxflash, maxram) -> SizeStruct:
     """Stm32 handler: parse stm32 size_tool output to result struct"""
     #    output = """   text	   data	    bss	    dec	    hex	filename
     #   12316	      0	      4	  12320	   3020	path:/to/file/stm32f103_example"""
-    searched = re.search(r'\s*(\d+).*(\d+).*(\d+)', output)
-    text, data, bss = float(searched.group(1)), float(
-        searched.group(2)), float(searched.group(3))
+
+    l = [x.group() for x in re.finditer(r'(\d+)', output)]
+    text, data, bss = float(l[0]), float(l[1]), float(l[2])
     res = SizeStruct()
     res.device = mcu
     res.program_size = text+data
