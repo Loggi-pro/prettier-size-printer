@@ -1,7 +1,13 @@
 import enum
+from pathlib import Path
 import re
 import argparse
 import os
+import distutils.dir_util
+import filecmp
+import sys
+from typing import NamedTuple
+from time import sleep
 import subprocess
 from subprocess import DEVNULL
 
@@ -124,11 +130,11 @@ def parse_avr_output(output) -> SizeStruct:
     res.program_size = float(re.search(
         r'Program:\s*(\d+).*(\d+)\%', output).group(1))
     res.program_percent = float(re.search(
-        r'Program:\s*(\d+).*(\d+)\%', output).group(2))
+        r'Program:\s*(\d+).*\(([\d\.]+)\%', output).group(2))
     res.data_size = float(
         re.search(r'Data:\s*(\d+).*(\d+)\%', output).group(1))
     res.data_percent = float(
-        re.search(r'Data:\s*(\d+).*(\d+)\%', output).group(2))
+        re.search(r'Data:\s*(\d+).*\(([\d\.]+)\%', output).group(2))
     return res
 
 
@@ -230,10 +236,10 @@ def value_to_str(x) -> str:
     suffix = 'bytes'
     result = f'{x:.0f} {suffix}'
 
-    if x >= 1024:
+    """if x >= 1024:
         x /= 1024
         suffix = 'Kb'
-        result = f'{x:.1f} {suffix}'
+        result = f'{x:.1f} {suffix}'"""
     return result
 
 
